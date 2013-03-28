@@ -1,0 +1,279 @@
+{
+  "name"    : "Generic application.json",
+
+  "include" :
+  [
+    {
+      "path" : "./base.json"
+    },
+
+    {
+      "path" : "${QOOXDOO_PATH}/component/apiviewer/api.json",
+      "as"   : "apiconf"
+    },
+    
+    {
+      "path" : "${QOOXDOO_PATH}/component/testrunner/testrunner.json",
+      "as"   : "testrunner"
+    },
+    
+    {
+      "path" : "${QOOXDOO_PATH}/component/inspector/inspector.json",
+      "as"   : "inspector"
+    },
+    
+    {
+      "path" : "${QOOXDOO_PATH}/component/simulator/simulator.json",
+      "as"   : "simulator"
+    }
+  ],
+
+  "let" :
+  {
+    "ROOT"         : ".",
+    "QOOXDOO_PATH" : "../../.."
+  },
+
+  "jobs"  :
+  {
+
+    "api" :
+    {
+      "desc"   : "create api doc for the current library",
+
+      "extend" : ["libraries", "apiconf::build"],
+
+      "let"    :
+      {
+        "APIVIEWER_ROOT" : "${QOOXDOO_PATH}/component/apiviewer",
+        "BUILD_PATH"     : "${ROOT}/api",
+        "API_INCLUDE"    : ["qx.*", "${APPLICATION}.*"],
+        "API_EXCLUDE"    : ["qx.test.*", "${APPLICATION}.test.*", "${APPLICATION}.simulation.*"]
+      }
+    },
+
+
+    "api-data" : 
+    {
+      "desc"   : "create api doc json data files",
+
+      "extend" : ["libraries", "apiconf::build-data"],
+
+      "let"    :
+      {
+        "APIVIEWER_ROOT" : "${QOOXDOO_PATH}/component/apiviewer",
+        "BUILD_PATH"     : "${ROOT}/api",
+        "API_INCLUDE"    : ["qx.*", "${APPLICATION}.*"]
+      }
+    },
+
+
+    "inspector":
+    {
+      "desc"   : "create an inspector instance in the current library",
+
+      "extend" : ["inspector::build"],
+
+      "let"    :
+      {
+        "INSPECTOR_ROOT" : "${QOOXDOO_PATH}/component/inspector",
+        "INSPECTOR_PATH"    : "${ROOT}/inspector"
+      },
+
+      "environment" :
+      {
+        "inspector.selenium.extensions" : "../inspector/script/user-extensions.js"
+      },
+
+      "=run" : ["inspector-resources", "inspector-script", "inspector-files", "inspector::build-files-simulator"]
+    },
+
+
+    "inspector-resources":
+    {
+      "extend"  : ["inspector::build-resources"],
+
+      "copy-files" : // piggy-packing another files copy job onto this one
+      {
+        "files"  :
+        [
+          "index.html"
+        ],
+
+        "target" : "${INSPECTOR_PATH}",
+        "source" : "${INSPECTOR_ROOT}/source/resource/inspector/html"
+      }
+    },
+
+    "inspector-script":
+    {
+      "extend"  : ["inspector::build-script"],
+
+      "compile-options": 
+      {
+        "uris" : 
+        { 
+          "resource" : "../inspector/resource",
+          "script"   : "../inspector/script"
+        }
+      }
+    },
+
+    "inspector-files":
+    {
+      "extend" : ["inspector::build-files"],
+
+      "copy-files" :
+      {
+        "=files" :
+        [
+          "inspector.html"
+        ],
+
+        "target" : "${ROOT}/source"
+      }
+    },
+
+
+    "test" :
+    {
+      "desc"    : "create a test runner app for unit tests of the current library",
+
+      "extend"  : ["testrunner::build"],
+
+      "let" :
+      {
+        "TESTRUNNER_ORIGIN" : "iframe",
+        "TESTRUNNER_VIEW" : "testrunner.view.widget.Widget",
+        "TESTRUNNER_MAIN_CLASS" : "testrunner.GuiApplication",
+        "TESTRUNNER_ROOT" : "${QOOXDOO_PATH}/component/testrunner",
+        "TEST_INCLUDE"    : "${APPLICATION}.test.*",
+        "QXTHEME"         : "qx.theme.Modern",
+        "BUILD_PATH"      : "${ROOT}/test"
+      }
+    },
+
+
+    "test-inline" :
+    {
+      "extend" : ["test"],
+      
+      "let" : 
+      {
+        "TESTS_SCRIPT" : "tests-inline.js"
+      },
+      
+      "include" : ["testrunner.TestLoaderInline"]
+    },
+
+
+    "test-native" :
+    {
+      "extend" : ["test"],
+      
+      "let" : 
+      {
+        "TESTS_SCRIPT" : "tests-native.js"
+      },
+      
+      "include" : ["testrunner.TestLoaderNative"]
+    },
+
+
+    "test-source" :
+    {
+      "desc"    : "create a test runner app for unit tests (source version) of the current library",
+
+      "extend" : ["testrunner::build-with-tests-source"],
+
+      "let" :
+      {
+        "TESTRUNNER_ORIGIN" : "iframe",
+        "TESTRUNNER_VIEW" : "testrunner.view.widget.Widget",
+        "TESTRUNNER_MAIN_CLASS" : "testrunner.GuiApplication",
+        "TESTRUNNER_ROOT" : "${QOOXDOO_PATH}/component/testrunner",
+        "TEST_INCLUDE"    : "${APPLICATION}.test.*",
+        "QXTHEME"         : "qx.theme.Modern",
+        "BUILD_PATH"      : "${ROOT}/test"
+      }
+    },
+    
+    "test-basic" :
+    {
+      "desc" : "create a basic (server-side/headless) test runner app for unit tests of the current library",
+      
+      "extend" : ["testrunner::build-basic"],
+      
+      "let" :
+      {
+        "TESTRUNNER_ROOT" : "${QOOXDOO_PATH}/component/testrunner",
+        "TEST_INCLUDE"    : "${APPLICATION}.test.*",
+        "BUILD_PATH"      : "${ROOT}/test"
+      }
+    },
+    
+    "test-basic-source" :
+    {
+      "desc" : "create a basic (server-side/headless) test runner app for unit tests (source version) of the current library",
+      
+      "extend" : ["testrunner::source-basic"],
+      
+      "let" :
+      {
+        "TESTRUNNER_ROOT" : "${QOOXDOO_PATH}/component/testrunner",
+        "TEST_INCLUDE"    : "${APPLICATION}.test.*",
+        "BUILD_PATH"      : "${ROOT}/test"
+      }
+    },
+    
+    "simulation-run" :
+    {
+      "desc" : "launches simulated interaction tests generated with simulation-build",
+    
+      "extend" : ["simulator::simulation-run"],
+      
+      "let" :
+      {
+        "SIMULATOR_ROOT" : "${QOOXDOO_PATH}/component/simulator",
+        "BUILD_PATH"      : "${ROOT}/simulator"
+      }
+    },
+    
+    "simulation-run-source" :
+    {
+      "desc" : "launches simulated interaction tests generated with simulation-build",
+    
+      "extend" : ["simulator::simulation-run-source"],
+      
+      "let" :
+      {
+        "SIMULATOR_ROOT" : "${QOOXDOO_PATH}/component/simulator",
+        "BUILD_PATH"      : "${ROOT}/simulator"
+      }
+    },
+    
+    "simulation-build" :
+    {
+      "desc" : "create a runner app for simulated interaction tests",
+    
+      "extend" : ["simulator::build"],
+      
+      "let" :
+      {
+        "SIMULATION_INCLUDE" : "${APPLICATION}.simulation.*"
+      }
+    },
+    
+    "simulation-source" :
+    {
+      "desc" : "create a runner app (source version) for simulated interaction tests",
+    
+      "extend" : ["simulator::source"],
+      
+      "let" :
+      {
+        "SIMULATION_INCLUDE" : "${APPLICATION}.simulation.*"
+      }
+    }
+  }
+}

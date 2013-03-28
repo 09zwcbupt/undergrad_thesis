@@ -1,0 +1,66 @@
+{
+  "name"    : "Inspector (application) config",
+
+  "include" :
+  [
+    {
+      "path" : "inspector.json"
+    },
+    {
+      "path" : "${QOOXDOO_PATH}/tool/data/config/application.json",
+      "block"   : 
+      [ 
+        "libraries",
+        "common",
+        "build",
+        "build-script",
+        "build-resources",
+        "build-files"
+      ]
+    }
+  ],
+  
+  "default-job" : "source",
+  
+  "let" :
+  {
+    "APPLICATION"  : "inspector",
+    "QOOXDOO_PATH" : "../..",
+    "CACHE"        : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
+    "QXTHEME"      : "inspector.theme.Theme",
+    "API_EXCLUDE"  : ["qx.test.*", "inspector.test.*"],
+    "LOCALES"      : [ "en" ],
+    "ROOT"         : "."
+  },
+  
+  "config-warnings" : 
+  {
+    "job-shadowing" : ["source", "common", "inspector::common", "translation"],
+
+    "environment" : [ "non-literal-keys" ]
+  },
+  
+  "jobs" :
+  {
+    "common" :
+    {
+      "environment" :
+      {
+        "qx.nativeScrollBars" : true
+      }
+    },
+
+    "source" :
+    {
+      "environment" :
+      {
+        "inspector.selenium.extensions" : false
+      }
+    }
+
+    ,"translation" :
+    {
+      "translate" : { "poentry-with-occurrences" : false  }
+    }
+  }
+}

@@ -1,0 +1,149 @@
+{
+  "name"    : "testrunner",
+
+  "include" :
+  [
+    {
+      "path" : "testrunner.json"  
+    },
+    {
+      "path" : "portable.json",
+      "as"   : "portable"
+    },
+    {
+      "path" : "${QOOXDOO_PATH}/tool/data/config/application.json",
+      "block"   : 
+      [ 
+        "source",
+        "source-script",
+        "build",
+        "build-script",
+        "build-resources",
+        "build-files",
+        "clean" 
+      ]
+    }
+  ],
+  
+  "default-job" : "source",
+  
+  "config-warnings": {
+    "job-shadowing": [
+      "source-tests-script",
+      "build-basic",
+      "source-basic",
+      "testrunner::source-tests-script",
+      "testrunner::build-basic",
+      "testrunner::source-basic",
+      "portable::build-script",
+      "translation"
+    ],
+
+    "exclude" : [
+      "testrunner.view.widget.*",
+      "testrunner.TestLoader",
+      "testrunner.TestLoaderInline",
+      "testrunner.TestLoaderNative",
+      "qx.dev.unit.TestLoaderInline"
+    ]
+  },
+
+  "let" :
+  {
+    "APPLICATION"  : "testrunner",
+    "QOOXDOO_PATH" : "../..",
+    "API_EXCLUDE"  : ["qx.test.*", "${APPLICATION}.theme.*", "${APPLICATION}.test.*"],
+    "LOCALES"      : [ "en" ],
+    "CACHE"        : "${TMPDIR}/qx${QOOXDOO_VERSION}/cache",
+    "ROOT"         : ".",
+    "TEST_NAMESPACE" : "${APPLICATION}.test",
+    "TEST_INCLUDE" : "${TEST_NAMESPACE}.*"
+  },
+
+  "jobs" :
+  {
+    "source-tests-script" : 
+    {
+      "compile-options" :
+      {
+        "paths" :
+        {
+          "file" : "./source/script/tests-source.js",
+          "app-root" : "source/html"
+        }
+      }
+    },
+
+    "build-basic" :
+    {
+      "let" :
+      {
+        "TEST_NAMESPACE" : "${APPLICATION}.test.basic"
+      }
+    },
+
+    "source-basic" :
+    {
+      "let" :
+      {
+        "TEST_NAMESPACE" : "${APPLICATION}.test.basic",
+        "BUILD_PATH" : "${TESTRUNNER_ROOT}/source"
+      }
+    },
+
+    /*
+    "source-script-packages" :
+    {
+      "extend" : ["source-script"],
+      
+      "packages" :
+      {
+        "parts"  :
+        {
+          "boot"     :
+          {
+            "include" : [ "${APPLICATION}.Application",  "${TEST_NAMESPACE}.DemoTest"]
+          },
+          "${TEST_NAMESPACE}.ui" :
+          {
+            "include" : [ "${TEST_NAMESPACE}.ui.*" ]
+          },
+          "${TEST_NAMESPACE}.data" :
+          {
+            "include" : [ "${TEST_NAMESPACE}.data.*" ]
+          }
+        }
+      },
+      
+      "environment" :
+      {
+        "testrunner.testParts" : ["${TEST_NAMESPACE}.ui", "${TEST_NAMESPACE}.data"]
+      }
+    },
+    */
+
+    // -------------------------------------------------------------------------
+    // Portable Testrunner Jobs
+    // -------------------------------------------------------------------------
+
+    "portable-source" :
+    {
+      "extend" : ["portable::source-script"]
+    },
+
+    "portable-build" : 
+    {
+      "extend" : ["portable::build"]
+    },
+
+    // -------------------------------------------------------------------------
+    // Misc
+    // -------------------------------------------------------------------------
+
+    "translation" :
+    {
+      "translate" : { "poentry-with-occurrences" : false  }
+    }
+
+  }
+}
