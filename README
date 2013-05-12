@@ -1,3 +1,19 @@
+This is my undergraduate thesis project. It is about tracking hosts' 
+connection status in real time. For doing that, I used the PortStatus 
+in OpenFlow message to find any host that is leaving the network. 
+Also, for host joining the network, I tracked DHCP communication to 
+determine if the host have a valid IP address.
+
+I put the HostEvent module and POXDesk in the ext dir. The start up
+command is:
+
+python pox.py HostEvent samples.pretty_log web messenger \
+messenger.log_service messenger.ajax_transport openflow.of_service \
+poxdesk openflow.discovery poxdesk.tinytopo
+
+Then visit http://127.0.0.1:8000/poxdesk/, you will see the POXDesk
+web UI.
+---------------------------------------------------------------------------
 POX is a network controller written in Python.
 
 POX officially requires Python 2.7 (though much of it will work fine
